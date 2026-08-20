@@ -41,7 +41,8 @@ class Intervention:
 
 
 # Pre-defined interventions for Bengaluru MVP
-# These numbers are placeholders – refine with literature / local costs later.
+
+""" ## These numbers are placeholders – refine with literature / local costs later.
 DEFAULT_INTERVENTIONS: Dict[str, Intervention] = {
     "green_cover": Intervention(
         name="green_cover",
@@ -82,8 +83,58 @@ DEFAULT_INTERVENTIONS: Dict[str, Intervention] = {
         description="Create or expand small water bodies / wetlands",
     ),
 }
+ """
+# ----------------------------------------------------------------------
+# 1. Intervention definitions (Updated with Researched Market Rates)
+# ----------------------------------------------------------------------
 
-
+DEFAULT_INTERVENTIONS: Dict[str, Intervention] = {
+    "green_cover": Intervention(
+        name="green_cover",
+        feature_deltas={
+            # Miyawaki urban forestry creates dense canopy rapidly, drastically boosting NDVI
+            "ndvi": 0.20,          
+            "albedo": 0.02,        # Leaves offer a slight albedo increase over dark asphalt
+            "imperviousness": -0.15, # Breaks up concrete, increasing water absorption
+            "ndbi": -0.10,         # Reduces the built-up index signature
+        },
+        # Cost Basis: Indian market rate for Miyawaki site prep, soil, and saplings (₹300 - ₹500)
+        cost_per_m2=400.0,         
+        description="High-density Miyawaki urban afforestation",
+    ),
+    "cool_roofs": Intervention(
+        name="cool_roofs",
+        feature_deltas={
+            # White elastomeric paint reflects massive amounts of shortwave radiation
+            "albedo": 0.35,        
+            "ndbi": -0.05,
+        },
+        # Cost Basis: High-SRI cool roof paint application (~₹45/sq.ft. converted to m2)
+        cost_per_m2=480.0,         
+        description="Elastomeric high-SRI cool roof coatings on buildings",
+    ),
+    "albedo_boost": Intervention(
+        name="albedo_boost",
+        feature_deltas={
+            # General pavement whitening / cool pavements
+            "albedo": 0.15,        
+        },
+        # Cost Basis: Lower than elastomeric roof paint, basic reflective surfacing
+        cost_per_m2=250.0,         
+        description="Increase surface albedo of roads and open pavements",
+    ),
+    "water_bodies": Intervention(
+        name="water_bodies",
+        feature_deltas={
+            "ndvi": 0.05,          # Riparian edges add slight vegetation
+            "albedo": -0.05,       # Water absorbs light, technically lowering albedo
+            "imperviousness": -0.20, # Replaces concrete with permeable retention
+        },
+        # Cost Basis: Median municipal lake/pond excavation & impermeable lining 
+        cost_per_m2=2500.0,        
+        description="Create or restore urban water retention ponds",
+    ),
+}
 # ----------------------------------------------------------------------
 # 2. Grid representation
 # ----------------------------------------------------------------------
@@ -409,3 +460,33 @@ if __name__ == "__main__":
     df = result["modified_grid"].to_dataframe()
     print(df[["cell_id", "ndvi", "albedo", "imperviousness"]].head(3).to_string(index=False))
     print("\nScaffold is ready. Next: plug in real model + real grid.")
+
+# ----------------------------------------------------------------------
+# 6. Optimizer Helpers
+# ----------------------------------------------------------------------
+
+def generate_random_intervention_plans(num_plans=10):
+    """
+    Generates random intervention plans for the NSGA-II optimizer to evaluate.
+    Intensity values represent the percentage of a 100m grid cell to alter (0.0 to 1.0).
+    """
+    import random
+    plans = []
+    
+    for _ in range(num_plans):
+        plan = {
+            # Bounded to 40%: Cannot realistically plant trees over an entire city block
+            "green_cover": round(random.uniform(0, 0.4), 2),   
+            
+            # Bounded to 60%: Assumes a maximum of 60% of the cell is paintable roof area
+            "cool_roofs": round(random.uniform(0, 0.6), 2),    
+            
+            # Bounded to 30%: Reflective pavement coverage limits
+            "albedo_boost": round(random.uniform(0, 0.3), 2),
+            
+            # Bounded to 15%: Extremely difficult to find large open space for new lakes
+            "water_bodies": round(random.uniform(0, 0.15), 2)  
+        }
+        plans.append(plan)
+        
+    return plans
