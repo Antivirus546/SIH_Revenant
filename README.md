@@ -89,7 +89,7 @@ Next steps for Phase 1 (Ajay / Karthikeya)
 
 
 
-[ ] Review and tweak the feature_deltas and cost_per_m2 values (make them more realistic).
+[x] Review and tweak the feature_deltas and cost_per_m2 values (make them more realistic).
 
 
 
@@ -97,7 +97,7 @@ Next steps for Phase 1 (Ajay / Karthikeya)
 
 
 
-[ ] Add a simple function that returns a list of candidate plans for the optimizer to evaluate.
+[x] Add a simple function that returns a list of candidate plans for the optimizer to evaluate.
 
 
 
