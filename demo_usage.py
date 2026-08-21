@@ -1,35 +1,38 @@
 """
-Quick demo you can run or show in today's meeting.
-Shows three different intervention plans side-by-side.
+UrbanHeat AI – Intervention Simulator Demo (Real Ward-1 data)
+Shows three different intervention strategies side-by-side.
 """
 
-from intervention_simulater import create_dummy_bengaluru_grid, InterventionSimulator
+from intervention_simulater import load_ward1_grid, InterventionSimulator
 import pandas as pd
 
 def main():
-    print("=" * 60)
-    print("UrbanHeat AI – Intervention Simulator Demo")
-    print("=" * 60)
+    print("=" * 65)
+    print("UrbanHeat AI – Intervention Simulator Demo (Real Ward-1)")
+    print("=" * 65)
 
-    grid = create_dummy_bengaluru_grid(n_cells=30, seed=7)
+    # Load real data
+    grid = load_ward1_grid("ward1_processed.csv")
+    print(f"\nLoaded real grid → {len(grid.cells)} cells\n")
+
     sim = InterventionSimulator(grid)
 
     plans = {
-        "Green-heavy": {
-            "green_cover": 0.8,
-            "cool_roofs": 0.2,
-            "albedo_boost": 0.1,
+        "Cool-roof heavy": {
+            "cool_roofs": 0.85,
+            "green_cover": 0.15,
+            "albedo_boost": 0.20,
         },
-        "Cool-roof focus": {
-            "green_cover": 0.2,
-            "cool_roofs": 0.9,
-            "albedo_boost": 0.3,
+        "Green + Cool balanced": {
+            "cool_roofs": 0.55,
+            "green_cover": 0.60,
+            "albedo_boost": 0.25,
         },
-        "Balanced + water": {
-            "green_cover": 0.5,
-            "cool_roofs": 0.4,
-            "water_bodies": 0.25,
-            "albedo_boost": 0.2,
+        "Max cooling (aggressive)": {
+            "cool_roofs": 0.75,
+            "green_cover": 0.50,
+            "albedo_boost": 0.40,
+            "water_bodies": 0.15,
         },
     }
 
@@ -38,17 +41,18 @@ def main():
         res = sim.estimate_impact(plan)
         rows.append({
             "Plan": name,
-            "Mean cooling": round(res["mean_cooling"], 4),
-            "Pop-weighted cooling": round(res["pop_weighted_cooling"], 4),
+            "Mean cooling": round(res["mean_cooling"], 2),
+            "Pop-weighted cooling": round(res["pop_weighted_cooling"], 2),
             "Total cost (₹ Cr)": round(res["total_cost_inr"] / 1e7, 2),
-            "Cooling / lakh ₹": round(res["cooling_per_lakh_inr"], 4),
+            "Cooling / lakh ₹": round(res["cooling_per_lakh_inr"], 3),
+            "Max cell cooling": round(res["max_cooling"], 1),
         })
 
     df = pd.DataFrame(rows)
-    print("\nComparison of three intervention strategies:\n")
+    print("Comparison of three intervention strategies:\n")
     print(df.to_string(index=False))
-    print("\n(Higher cooling + higher cooling-per-lakh is better)")
-    print("\nThis table is exactly the kind of output the optimizer and dashboard will consume.")
+    print("\n(Higher cooling + higher Cooling/lakh ₹ is better)")
+    print("This table is exactly the kind of output the optimizer and dashboard will consume.")
 
 if __name__ == "__main__":
     main()
