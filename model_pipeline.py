@@ -19,7 +19,7 @@ df = pd.read_csv("ward1_processed.csv")
 df['target_temp_c'] = (df['target_temp'] * 0.00341802) + 149.0 - 273.15
 
 # TASK 2: Standard Train/Test Split
-features = ['bldg_area_sqm', 'road_length_m', 'ndvi', 'ndbi', 'albedo']
+features = ['bldg_area_sqm', 'road_length_m', 'ndvi', 'ndbi', 'albedo', 'ndwi', 'elevation']
 
 X = df[features]
 y = df['target_temp_c']
