@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+altair
+joblib
+xgboost
+scipy
+scikit-learn
+geopandas
+rasterio
+folium

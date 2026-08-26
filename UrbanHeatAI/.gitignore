@@ -1,0 +1,10 @@
+<<<<<<< HEAD
+__pycache__/
+=======
+venv/
+__pycache__/
+*.pyc
+.env
+.streamlit/secrets.toml
+cache/
+>>>>>>> a75fec4 (With out bugs)
